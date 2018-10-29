@@ -5,7 +5,6 @@
  */
 package com.gabriel.t2OrgArq;
 
-import java.awt.Rectangle;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -37,8 +36,14 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -51,17 +56,24 @@ import javafx.stage.Stage;
  */
 public class App extends Application {
 
+    private static Stage mainstage;
+    private BorderPane root;
+    private Scene scene;
+    private GridPane grid;
     private Text scenetitle;    
     private Label messageini;
     private ImageView imageini;
 
+    //Janela depois de carregar o arquivo
+    private Label steps;
+    private Button nextStep;
     //Draw
     private Rectangle rect;
     
     @Override
     public void start(Stage primaryStage){
-        
-        BorderPane root = new BorderPane();
+        this.mainstage = primaryStage;
+        root = new BorderPane();
         MenuBar menuBar = new MenuBar();
         
         Menu file = new Menu("File");
@@ -78,7 +90,7 @@ public class App extends Application {
         menuBar.getMenus().addAll(file,help);
       
         
-        GridPane grid = new GridPane();
+        grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(10);
         grid.setVgap(10);
@@ -113,71 +125,27 @@ public class App extends Application {
                 // Show open file dialog
                 File file = fileChooser.showOpenDialog(primaryStage);
                 if (file != null) {
-                   clearInitialStage();
+                    grid.getChildren().clear();
+                    ReadFile rf = ReadFile.getInstance();
+                    try {
+                        rf.inicia(file);
+                        
+                        newWindow();                    
+                    } catch (FileNotFoundException ex) {
+                        Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
-                
             }
         });
-        
         exit.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent t) {
                 Platform.exit();
             }
         });
-        /*open.setOnAction((e) -> {
-            Stage stage = (Stage) ((Node) e.getSource()).getScene().getWindow();
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Abrir Arquivo");
-            File arq = fileChooser.showOpenDialog(stage);
-        });
-        */
-        /*
-        Label pos = new Label("Posição:");
-        grid.add(pos, 1, 2);
-        TextField posTextField = new TextField();
-        grid.add(posTextField, 2, 2);
-        posTextField.setEditable(false);
-
-        Label sqbase = new Label("Seqbase:");
-        grid.add(sqbase, 1, 3);
-
-        Label sentido = new Label("Sentido:");
-        grid.add(sentido, 1, 4);
-        TextField sentidoTextField = new TextField();
-        grid.add(sentidoTextField, 2, 4);
-        sentidoTextField.setEditable(false);
-
-        Label agrup = new Label("Agrupamento:");
-        grid.add(agrup, 1, 5);
-        TextArea agrupTextField = new TextArea();
-        agrupTextField.setMaxSize(300,0);
-        grid.add(agrupTextField, 1, 6, 2, 1);
-        agrupTextField.setEditable(false);
-
-        Label seqamin = new Label("Seq de amino:");
-        grid.add(seqamin, 1, 7);
-        TextArea seqaminTextField = new TextArea();
-        seqaminTextField.setMaxSize(300,0);
-        grid.add(seqaminTextField, 1, 8, 2, 1);
-        seqaminTextField.setEditable(false);
-
-        Label sqcor = new Label("Seq correta:");
-        grid.add(sqcor, 1, 9);
-        TextArea sqcorTextField = new TextArea();
-        sqcorTextField.setMaxSize(300,0);
-        grid.add(sqcorTextField, 1, 10, 2, 1);
-        sqcorTextField.setEditable(false);
-
-        Button btn = new Button("Carregar");
-        grid.add(btn, 1, 11);
-
-        ListView<String> ls = new ListView<>();
-        ls.setEditable(false);
-
-        grid.add(ls, 0, 1, 1, 11);*/
+        
         root.setTop(menuBar);
         root.setCenter(grid);
-        Scene scene = new Scene(root, 1100, 650);
+        scene = new Scene(root, 1100, 650);
         
         primaryStage.setTitle("MIPS simulator");
         primaryStage.setScene(scene);
@@ -191,12 +159,61 @@ public class App extends Application {
         launch(args);
     }
     
-    public void clearInitialStage(){
-          scenetitle.setVisible(false);
-          messageini.setVisible(false);
-          imageini.setVisible(false);
+    public void newWindow(){
+        
+        steps = new Label("Next step:");
+        steps.setTranslateX(50.0f);
+        steps.setTranslateY(30.0f);
+        steps.setFont(new Font("Arial", 12));
+        
+        nextStep = new Button("icon");
+        nextStep.setTranslateX(110.0f); 
+        nextStep.setTranslateY(25.0f);
+        
+        Rectangle rect1 = new Rectangle(150.0f,150.0f);
+        rect1.setStroke(Color.BLACK);
+        rect1.setFill(Color.FLORALWHITE);
+        rect1.setX(300.0f); 
+        rect1.setY(220.0f); 
+        
+        rect1.setOnMouseClicked(new EventHandler<MouseEvent>()
+        {
+            @Override
+            public void handle(MouseEvent t) {
+                System.out.println("Clicou no retangulo 1");;
+            }
+        });
+        
+        Line line1 = new Line(451, 250, 649, 250);
+        line1.setStrokeWidth(4);
+        
+        line1.setOnMouseEntered(new EventHandler<MouseEvent>()
+        {
+            @Override
+            public void handle(MouseEvent t) {
+                System.out.println("Passou o mouse na linha");;
+            }
+        });
+        
+        Rectangle rect2 = new Rectangle(150.0f,150.0f);
+        rect2.setStroke(Color.BLACK);
+        rect2.setFill(Color.FLORALWHITE);
+        rect2.setX(650.0f); 
+        rect2.setY(220.0f); 
+        
+        rect2.setOnMouseClicked(new EventHandler<MouseEvent>()
+        {
+            @Override
+            public void handle(MouseEvent t) {
+                System.out.println("Clicou no retangulo 2");;
+            }
+        });
+        
+        Group group = new Group(rect1,rect2); 
+        group.getChildren().addAll(steps,nextStep,line1);
+        
+        Scene simulator = new Scene(group, 1100,650);       
+        mainstage.setScene(simulator); 
     }
     
-    public void processorDesign(){
-    }
 }
